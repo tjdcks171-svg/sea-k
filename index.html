@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#087f8c" />
+    <meta
+      name="description"
+      content="SEA:K와 함께 부산의 바다를 여행하며 실제 풍경 카드를 모으고 미션을 수행하는 체험형 관광 웹 앱"
+    />
+    <title>SEA:K | 부산 바다 탐험</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 바로가기</a>
+
+    <div class="sea-background" aria-hidden="true">
+      <span class="bubble bubble-one"></span>
+      <span class="bubble bubble-two"></span>
+      <span class="bubble bubble-three"></span>
+    </div>
+
+    <header class="topbar">
+      <button class="brand" type="button" data-go="home" aria-label="SEA:K 홈으로 이동">
+        <span class="brand-mark" aria-hidden="true">〰</span>
+        <span>
+          <strong>SEA:K</strong>
+          <small>부산 바다 탐험</small>
+        </span>
+      </button>
+
+      <div class="topbar-actions">
+        <div class="coin-pill" aria-label="현재 보유 코인">
+          <span aria-hidden="true">●</span>
+          <strong id="headerCoin">0</strong>
+          <span>코인</span>
+        </div>
+        <button class="icon-button" id="resetButton" type="button" aria-label="체험 데이터 초기화" title="체험 데이터 초기화">
+          ↻
+        </button>
+      </div>
+    </header>
+
+    <nav class="desktop-nav" aria-label="주요 메뉴">
+      <button class="nav-item is-active" type="button" data-nav="home" aria-current="page">
+        <span aria-hidden="true">⌂</span><span>홈</span>
+      </button>
+      <button class="nav-item" type="button" data-nav="album">
+        <span aria-hidden="true">▦</span><span>카드 앨범</span>
+      </button>
+      <button class="nav-item" type="button" data-nav="verify">
+        <span aria-hidden="true">◎</span><span>현장 인증</span>
+      </button>
+      <button class="nav-item" type="button" data-nav="shop">
+        <span aria-hidden="true">◇</span><span>코인 교환소</span>
+      </button>
+    </nav>
+
+    <main id="main-content">
+      <section class="view is-active" id="homeView" data-view="home" aria-labelledby="homeTitle">
+        <div class="hero-shell">
+          <div class="hero-copy">
+            <p class="eyebrow"><span></span> 부산의 바다를 모으는 새로운 방법</p>
+            <h1 id="homeTitle">파도 한 장,<br /><em>추억 한 칸.</em></h1>
+            <p class="hero-description">
+              부산 바다를 직접 걷고, 숨은 풍경 카드를 모아 나만의 바다 앨범을 완성해 보세요.
+            </p>
+            <div class="hero-actions">
+              <button class="primary-button" type="button" data-go="verify">오늘의 탐험 시작 <span aria-hidden="true">→</span></button>
+              <button class="text-button" type="button" data-go="album">내 앨범 보기</button>
+            </div>
+          </div>
+
+          <div class="hero-visual" aria-label="광안대교와 부산 바다를 표현한 그림">
+            <div class="sun"></div>
+            <div class="cloud cloud-one"></div>
+            <div class="cloud cloud-two"></div>
+            <div class="bridge">
+              <span class="bridge-tower tower-left"></span>
+              <span class="bridge-cable cable-left"></span>
+              <span class="bridge-cable cable-right"></span>
+              <span class="bridge-tower tower-right"></span>
+              <span class="bridge-deck"></span>
+            </div>
+            <div class="island island-one"></div>
+            <div class="island island-two"></div>
+            <div class="ocean-wave wave-back"></div>
+            <div class="ocean-wave wave-front"></div>
+            <div class="floating-card" aria-hidden="true">
+              <span>SEA:K</span>
+              <strong>바다<br />탐험</strong>
+              <small>01 / 12</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-grid" aria-label="나의 탐험 현황">
+          <article class="status-card">
+            <span class="status-icon coral" aria-hidden="true">▣</span>
+            <div><small>수집한 카드</small><strong><b id="uniqueCount">0</b> / <span id="totalCardCount">0</span>장</strong></div>
+          </article>
+          <article class="status-card">
+            <span class="status-icon blue" aria-hidden="true">◔</span>
+            <div><small>앨범 완성도</small><strong id="homeProgressText">0%</strong></div>
+            <div class="mini-progress" aria-hidden="true"><span id="homeProgressBar"></span></div>
+          </article>
+          <article class="status-card">
+            <span class="status-icon yellow" aria-hidden="true">●</span>
+            <div><small>보유 코인</small><strong><b id="homeCoin">0</b>개</strong></div>
+          </article>
+          <article class="status-card">
+            <span class="status-icon green" aria-hidden="true">✓</span>
+            <div><small>완료한 미션</small><strong><b id="missionCount">0</b> / 3개</strong></div>
+          </article>
+        </div>
+
+        <div class="home-grid">
+          <section class="panel explorer-panel" aria-labelledby="conditionTitle">
+            <div class="section-heading compact">
+              <div>
+                <p class="section-kicker">오늘의 탐험 조건</p>
+                <h2 id="conditionTitle">지금 만나기 좋은 바다</h2>
+              </div>
+              <span class="live-badge"><i></i> 지금</span>
+            </div>
+            <div class="condition-row">
+              <div><span aria-hidden="true">◒</span><small>계절</small><strong id="currentSeason">-</strong></div>
+              <div><span aria-hidden="true">◷</span><small>시간대</small><strong id="currentTimeBand">-</strong></div>
+              <div><span aria-hidden="true">⌖</span><small>추천 지역</small><strong id="recommendedPlace">-</strong></div>
+            </div>
+            <p class="condition-tip" id="conditionTip">현재 조건과 잘 맞는 카드는 카드팩에서 등장할 확률이 높아요.</p>
+          </section>
+
+          <section class="panel streak-panel" aria-labelledby="streakTitle">
+            <div class="streak-symbol" aria-hidden="true">♒</div>
+            <div>
+              <p class="section-kicker">이번 주 바다 기록</p>
+              <h2 id="streakTitle">첫 파도를 만나러 가요!</h2>
+              <p id="streakCopy">현장 인증을 완료하면 이곳에 방문 기록이 쌓여요.</p>
+            </div>
+          </section>
+        </div>
+
+        <section class="section-block" aria-labelledby="missionTitle">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">코인을 모으는 가장 쉬운 방법</p>
+              <h2 id="missionTitle">오늘의 미션</h2>
+            </div>
+            <button class="small-link" type="button" data-go="shop">코인 사용하기 <span aria-hidden="true">→</span></button>
+          </div>
+          <div class="mission-grid" id="missionGrid"></div>
+        </section>
+
+        <section class="discover-banner" aria-label="부산 바다 탐험 안내">
+          <div>
+            <p>바다를 보고 끝내지 말고</p>
+            <h2>오늘의 부산을<br />한 장씩 간직해요.</h2>
+          </div>
+          <button class="sand-button" type="button" data-go="verify">현장 인증하러 가기</button>
+          <div class="banner-rings" aria-hidden="true"></div>
+        </section>
+      </section>
+
+      <section class="view" id="albumView" data-view="album" aria-labelledby="albumTitle" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow"><span></span> 나의 부산 바다 기록</p>
+            <h1 id="albumTitle">카드 앨범</h1>
+            <p>지역·계절·시간대마다 달라지는 풍경을 모아 보세요.</p>
+          </div>
+          <div class="album-score">
+            <div class="score-ring" id="scoreRing"><strong id="albumProgressText">0%</strong></div>
+            <span>앨범 완성도</span>
+          </div>
+        </div>
+
+        <section class="filter-panel" aria-label="카드 필터">
+          <div class="filter-group">
+            <label for="regionFilter">지역</label>
+            <select id="regionFilter"><option value="전체">전체 지역</option></select>
+          </div>
+          <div class="filter-group">
+            <label for="seasonFilter">계절</label>
+            <select id="seasonFilter">
+              <option value="전체">모든 계절</option>
+              <option value="봄">봄</option>
+              <option value="여름">여름</option>
+              <option value="가을">가을</option>
+              <option value="겨울">겨울</option>
+              <option value="사계절">사계절</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="timeFilter">시간대</label>
+            <select id="timeFilter">
+              <option value="전체">모든 시간대</option>
+              <option value="아침">아침</option>
+              <option value="낮">낮</option>
+              <option value="노을">노을</option>
+              <option value="밤">밤</option>
+              <option value="모든 시간">모든 시간</option>
+            </select>
+          </div>
+          <button class="outline-button filter-reset" id="filterReset" type="button">필터 초기화</button>
+        </section>
+
+        <div class="album-summary">
+          <p><strong id="filteredCount">0</strong>장의 카드를 보고 있어요</p>
+          <p><span class="rarity-dot common"></span> 일반 <span class="rarity-dot rare"></span> 희귀 <span class="rarity-dot epic"></span> 영웅 <span class="rarity-dot legend"></span> 전설</p>
+        </div>
+        <div class="card-grid" id="cardGrid"></div>
+        <p class="empty-state" id="cardEmpty" hidden>선택한 조건의 카드가 없어요. 필터를 바꿔 보세요.</p>
+
+        <section class="combine-section" aria-labelledby="combineTitle">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">두 풍경이 만나 특별한 한 장으로</p>
+              <h2 id="combineTitle">카드 조합소</h2>
+            </div>
+            <span class="info-chip">조합 카드는 카드팩에서 나오지 않아요</span>
+          </div>
+          <div class="recipe-grid" id="recipeGrid"></div>
+        </section>
+
+        <details class="photo-credits">
+          <summary>사진 출처 및 라이선스</summary>
+          <p>카드 사진은 실제 부산 풍경을 담은 재사용 가능 자료이며, 화면에 맞게 크기만 조정해 사용합니다.</p>
+          <p class="license-links">라이선스 안내: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a> · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noreferrer">CC BY-SA 3.0</a> · <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noreferrer">CC BY-SA 2.0</a> · <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noreferrer">CC BY 2.0</a> · <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noreferrer">CC0</a> · <a href="https://www.kogl.or.kr/info/licenseType1.do" target="_blank" rel="noreferrer">공공누리 제1유형</a></p>
+          <ul>
+            <li><a href="https://commons.wikimedia.org/wiki/File:Gwangalli_Beach_in_Busan.jpg" target="_blank" rel="noreferrer">광안리</a> · Leeyj0401 · CC BY-SA 4.0</li>
+            <li><a href="https://commons.wikimedia.org/wiki/File:Busan_City_Haeundae_Beach.jpg" target="_blank" rel="noreferrer">해운대</a> · 부산광역시 · 공공누리 제1유형</li>
+            <li><a href="https://commons.wikimedia.org/wiki/File:Dadaepo_Beach,_Busan,_Korea.jpg" target="_blank" rel="noreferrer">다대포</a> · Ken Eckert · CC BY-SA 4.0</li>
+            <li><a href="https://commons.wikimedia.org/wiki/File:Songjeong_Beach.jpg" target="_blank" rel="noreferrer">송정</a> · Andrewssi2 · CC BY-SA 3.0</li>
+            <li><a href="https://commons.wikimedia.org/wiki/File:Huinnyeoul_culture_village,_Busan_on_October_25th,_2019.jpg" target="_blank" rel="noreferrer">흰여울</a> · Choi2451 · CC0</li>
+            <li><a href="https://commons.wikimedia.org/wiki/File:Oryukdo_Skywalk_in_Busan,_South_Korea.jpg" target="_blank" rel="noreferrer">오륙도</a> · Choi2451 · CC0</li>
+            <li><a href="https://commons.wikimedia.org/wiki/File:Cheongsapo.jpg" target="_blank" rel="noreferrer">청사포</a> · Andrewssi2 · CC BY-SA 3.0</li>
+            <li><a href="https://commons.wikimedia.org/wiki/File:Igidae_Coastal_Trail.jpg" target="_blank" rel="noreferrer">이기대</a> · dom brassey draws comics · CC BY-SA 2.0</li>
+            <li><a href="https://commons.wikimedia.org/wiki/File:%EC%9D%BC%EA%B4%91%ED%95%B4%EC%88%98%EC%9A%95%EC%9E%A5.jpg" target="_blank" rel="noreferrer">기장 일광</a> · Kma80jihun · CC BY-SA 3.0</li>
+            <li><a href="https://commons.wikimedia.org/wiki/File:Taejongdae_Sea.jpg" target="_blank" rel="noreferrer">태종대</a> · Cheolsoo87 · CC BY-SA 4.0</li>
+            <li><a href="https://commons.wikimedia.org/wiki/File:Busan_Gwangalli_Night.jpg" target="_blank" rel="noreferrer">광안리 야경</a> · Carey Ciuro · CC BY 2.0</li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="view" id="verifyView" data-view="verify" aria-labelledby="verifyTitle" hidden>
+        <div class="page-heading simple">
+          <div>
+            <p class="eyebrow"><span></span> 직접 만난 바다를 기록해요</p>
+            <h1 id="verifyTitle">현장 인증</h1>
+            <p>장소와 인증 방법을 고르고, 오늘의 바다 사진을 남겨 주세요.</p>
+          </div>
+        </div>
+
+        <div class="demo-notice" role="note">
+          <span aria-hidden="true">ⓘ</span>
+          <p><strong>발표용 체험 모드예요.</strong> 실제 서비스에서는 장소별 QR·GPS 서버 검증을 사용하며, 지금은 브라우저에서 흐름을 체험합니다.</p>
+        </div>
+
+        <div class="verify-layout">
+          <section class="place-panel" aria-labelledby="placeTitle">
+            <div class="section-heading compact">
+              <div><span class="step-number">1</span><h2 id="placeTitle">바다 장소 선택</h2></div>
+            </div>
+            <div class="place-list" id="placeList"></div>
+          </section>
+
+          <section class="verify-panel" aria-labelledby="methodTitle">
+            <div class="selected-place-hero" id="selectedPlaceHero">
+              <span class="place-wave" aria-hidden="true">〰</span>
+              <div><small>선택한 장소</small><strong id="selectedPlaceName">광안리 해수욕장</strong><p id="selectedPlaceDescription">도심의 불빛과 광안대교가 만나는 부산의 대표 야경 명소</p></div>
+              <span class="reward-badge">+35 코인</span>
+            </div>
+
+            <div class="verify-step">
+              <div class="step-heading"><span class="step-number">2</span><div><h2 id="methodTitle">인증 방법 선택</h2><p>QR 또는 위치 중 하나만 완료하면 돼요.</p></div></div>
+              <div class="method-tabs" role="group" aria-label="인증 방법">
+                <button class="method-button is-active" type="button" data-method="qr" aria-pressed="true"><span aria-hidden="true">▦</span> QR 코드</button>
+                <button class="method-button" type="button" data-method="location" aria-pressed="false"><span aria-hidden="true">⌖</span> 위치 확인</button>
+              </div>
+
+              <div class="method-content" id="qrMethod">
+                <div class="qr-frame" id="qrFrame" aria-hidden="true">
+                  <span class="qr-corner top-left"></span><span class="qr-corner top-right"></span>
+                  <span class="qr-corner bottom-left"></span><span class="qr-corner bottom-right"></span>
+                  <span class="scan-line"></span><strong>▦</strong>
+                </div>
+                <div>
+                  <h3>장소 QR을 카메라에 비춰요</h3>
+                  <p id="qrStatus">체험 버튼을 누르면 QR 인식 과정을 재현해요.</p>
+                  <button class="outline-button" id="scanQrButton" type="button">QR 스캔 체험</button>
+                </div>
+              </div>
+
+              <div class="method-content" id="locationMethod" hidden>
+                <div class="location-radar" aria-hidden="true"><span></span><i></i></div>
+                <div>
+                  <h3>현재 위치와 장소를 비교해요</h3>
+                  <p id="locationStatus">브라우저 권한을 허용하면 실제 거리를 확인해요.</p>
+                  <div class="location-actions">
+                    <button class="outline-button" id="locationButton" type="button">내 위치 확인</button>
+                    <button class="text-button compact-button" id="locationDemoButton" type="button">발표용 위치 체험</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="verify-step">
+              <div class="step-heading"><span class="step-number">3</span><div><h2>바다 사진 남기기</h2><p>직접 찍은 풍경 한 장을 선택해 주세요.</p></div></div>
+              <div class="photo-uploader" id="photoUploader">
+                <input id="photoInput" type="file" accept="image/*" capture="environment" />
+                <label for="photoInput">
+                  <span class="upload-icon" aria-hidden="true">＋</span>
+                  <strong>사진 선택</strong>
+                  <small>휴대폰에서는 카메라로 바로 찍을 수 있어요</small>
+                </label>
+                <img id="photoPreview" alt="선택한 바다 사진 미리보기" hidden />
+                <button class="photo-remove" id="photoRemove" type="button" aria-label="선택한 사진 지우기" hidden>×</button>
+              </div>
+            </div>
+
+            <button class="primary-button full-button" id="completeVerifyButton" type="button" disabled>인증을 먼저 완료해 주세요</button>
+            <p class="verify-helper" id="verifyHelper">인증 방법 완료와 사진 선택이 모두 필요해요.</p>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="shopView" data-view="shop" aria-labelledby="shopTitle" hidden>
+        <div class="shop-heading">
+          <div>
+            <p class="eyebrow light"><span></span> 탐험의 즐거움을 더해요</p>
+            <h1 id="shopTitle">코인 교환소</h1>
+            <p>현장 인증과 미션으로 모은 코인을 원하는 보상으로 바꿔 보세요.</p>
+          </div>
+          <div class="wallet-card">
+            <small>나의 보유 코인</small>
+            <strong><span aria-hidden="true">●</span> <b id="shopCoin">0</b></strong>
+            <p>코인은 이 기기의 브라우저에 안전하게 기록돼요.</p>
+          </div>
+        </div>
+
+        <section class="shop-content" aria-labelledby="productTitle">
+          <div class="section-heading">
+            <div><p class="section-kicker">무엇과 바꿔 볼까요?</p><h2 id="productTitle">탐험 아이템</h2></div>
+          </div>
+          <div class="product-grid" id="productGrid"></div>
+        </section>
+
+        <section class="inventory-panel" aria-labelledby="inventoryTitle">
+          <div>
+            <p class="section-kicker">나의 보관함</p>
+            <h2 id="inventoryTitle">획득한 아이템</h2>
+          </div>
+          <div class="inventory-grid" id="inventoryGrid"></div>
+        </section>
+
+        <section class="earn-banner">
+          <div class="earn-icon" aria-hidden="true">◎</div>
+          <div><h2>코인이 부족한가요?</h2><p>가까운 부산 바다를 인증하면 장소당 35코인을 받을 수 있어요.</p></div>
+          <button class="outline-button light-outline" type="button" data-go="verify">현장 인증하기</button>
+        </section>
+      </section>
+    </main>
+
+    <nav class="mobile-nav" aria-label="모바일 주요 메뉴">
+      <button class="nav-item is-active" type="button" data-nav="home" aria-current="page"><span aria-hidden="true">⌂</span><small>홈</small></button>
+      <button class="nav-item" type="button" data-nav="album"><span aria-hidden="true">▦</span><small>카드 앨범</small></button>
+      <button class="nav-item verify-nav" type="button" data-nav="verify"><span class="verify-circle" aria-hidden="true">◎</span><small>현장 인증</small></button>
+      <button class="nav-item" type="button" data-nav="shop"><span aria-hidden="true">◇</span><small>교환소</small></button>
+    </nav>
+
+    <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultDialogTitle">
+      <button class="dialog-close" id="dialogClose" type="button" aria-label="창 닫기">×</button>
+      <div class="result-glow" aria-hidden="true"></div>
+      <div class="reveal-card" id="revealCard"></div>
+      <p class="dialog-kicker" id="resultDialogKicker">새로운 카드를 발견했어요!</p>
+      <h2 id="resultDialogTitle">카드 이름</h2>
+      <p id="resultDialogText">카드 설명</p>
+      <button class="primary-button full-button" id="dialogConfirm" type="button">앨범에 간직하기</button>
+    </dialog>
+
+    <dialog class="quiz-dialog" id="quizDialog" aria-labelledby="quizTitle">
+      <button class="dialog-close" id="quizClose" type="button" aria-label="퀴즈 창 닫기">×</button>
+      <span class="quiz-symbol" aria-hidden="true">?</span>
+      <p class="dialog-kicker">오늘의 바다 퀴즈</p>
+      <h2 id="quizTitle">바다를 안전하게 즐기는 방법은?</h2>
+      <div class="quiz-options" role="group" aria-label="정답 선택">
+        <button type="button" data-answer="wrong">파도가 높아도 바로 들어간다</button>
+        <button type="button" data-answer="correct">안전요원의 안내와 깃발을 확인한다</button>
+        <button type="button" data-answer="wrong">혼자 멀리 떨어져서 수영한다</button>
+      </div>
+      <p class="quiz-feedback" id="quizFeedback" aria-live="polite"></p>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true" hidden>
+      <span id="toastIcon" aria-hidden="true">✓</span><p id="toastText"></p>
+    </div>
+  </body>
+</html>
