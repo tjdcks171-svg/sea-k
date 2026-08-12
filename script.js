@@ -1,6 +1,8 @@
 "use strict";
 
 const STORAGE_KEY = "sea-k-state-v2";
+const PHOTO_DB_NAME = "sea-k-photo-album";
+const PHOTO_STORE_NAME = "card-photos";
 
 const cards = [
   { id: 1, name: "광안리 푸른 다리", region: "수영구", season: "여름", time: "밤", rarity: "희귀", icon: "⌁", colors: ["#5cd2d0", "#087f8c"], images: ["assets/cards/gwangalli.jpg"], imageAlt: "광안리 해변에서 바라본 광안대교", description: "광안대교의 불빛이 잔잔한 밤바다 위로 번지는 순간", source: "광안리 현장 인증 또는 카드팩" },
@@ -59,12 +61,80 @@ let activeMethod = "qr";
 let methodVerified = false;
 let photoReady = false;
 let previewUrl = null;
+let pendingPhotoFile = null;
+const capturedPhotos = new Map();
 let toastTimer = null;
 let scanTimer = null;
 let locationRequestId = 0;
 
 const $ = (selector, scope = document) => scope.querySelector(selector);
 const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
+
+function openPhotoDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(PHOTO_DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const database = request.result;
+      if (!database.objectStoreNames.contains(PHOTO_STORE_NAME)) database.createObjectStore(PHOTO_STORE_NAME, { keyPath: "cardId" });
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function loadCapturedPhotos() {
+  try {
+    const database = await openPhotoDatabase();
+    const records = await new Promise((resolve, reject) => {
+      const request = database.transaction(PHOTO_STORE_NAME, "readonly").objectStore(PHOTO_STORE_NAME).getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    database.close();
+    records.forEach((record) => {
+      const url = URL.createObjectURL(record.photo);
+      capturedPhotos.set(Number(record.cardId), { url, capturedAt: record.capturedAt });
+    });
+  } catch (error) {
+    console.warn("촬영 사진을 불러오지 못했습니다.", error);
+  }
+}
+
+async function saveCapturedPhoto(cardId, photo) {
+  try {
+    const database = await openPhotoDatabase();
+    const capturedAt = new Date().toISOString();
+    await new Promise((resolve, reject) => {
+      const request = database.transaction(PHOTO_STORE_NAME, "readwrite").objectStore(PHOTO_STORE_NAME).put({ cardId: Number(cardId), photo, capturedAt });
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+    database.close();
+    const previous = capturedPhotos.get(Number(cardId));
+    if (previous) URL.revokeObjectURL(previous.url);
+    capturedPhotos.set(Number(cardId), { url: URL.createObjectURL(photo), capturedAt });
+    return true;
+  } catch (error) {
+    console.warn("촬영 사진을 저장하지 못했습니다.", error);
+    return false;
+  }
+}
+
+async function clearCapturedPhotos() {
+  capturedPhotos.forEach((record) => URL.revokeObjectURL(record.url));
+  capturedPhotos.clear();
+  try {
+    const database = await openPhotoDatabase();
+    await new Promise((resolve, reject) => {
+      const request = database.transaction(PHOTO_STORE_NAME, "readwrite").objectStore(PHOTO_STORE_NAME).clear();
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+    database.close();
+  } catch (error) {
+    console.warn("촬영 사진을 초기화하지 못했습니다.", error);
+  }
+}
 
 function loadState() {
   try {
@@ -209,13 +279,16 @@ function renderMissions() {
 function cardMarkup(card) {
   const count = ownedCount(card.id);
   const locked = count === 0;
-  const photos = card.images.map((image, index) => `<img class="card-photo" src="${image}" alt="${index === 0 ? card.imageAlt : ""}" loading="lazy" decoding="async" />`).join("");
+  const personalPhoto = !locked ? capturedPhotos.get(card.id) : null;
+  const displayImages = personalPhoto ? [personalPhoto.url] : card.images;
+  const photos = displayImages.map((image, index) => `<img class="card-photo" src="${image}" alt="${personalPhoto ? `${card.name} 현장에서 내가 촬영한 사진` : index === 0 ? card.imageAlt : ""}" loading="lazy" decoding="async" />`).join("");
   return `
     <article class="collect-card ${locked ? "is-locked" : ""}" aria-label="${card.name}, ${locked ? "아직 획득하지 못함" : `${count}장 보유`}">
       <div class="card-art" style="--card-one:${card.colors[0]};--card-two:${card.colors[1]}">
-        <div class="card-photo-group ${card.images.length > 1 ? "is-collage" : ""}">${photos}</div>
+        <div class="card-photo-group ${displayImages.length > 1 ? "is-collage" : ""}">${photos}</div>
         <span class="card-number">부산 바다 ${String(card.id).padStart(2, "0")}</span>
         <span class="card-rarity">${card.rarity}</span>
+        ${personalPhoto ? '<span class="card-personal-photo">내가 찍은 사진</span>' : ""}
         ${locked ? '<span class="card-lock" aria-hidden="true">아직 미획득</span>' : ""}
       </div>
       <div class="card-body">
@@ -299,6 +372,7 @@ function resetVerificationInputs() {
 function clearSelectedPhoto() {
   if (previewUrl) URL.revokeObjectURL(previewUrl);
   previewUrl = null;
+  pendingPhotoFile = null;
   $("#photoInput").value = "";
   $("#photoPreview").src = "";
   $("#photoPreview").hidden = true;
@@ -595,6 +669,7 @@ function setupVerification() {
     }
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     previewUrl = URL.createObjectURL(file);
+    pendingPhotoFile = file;
     $("#photoPreview").src = previewUrl;
     $("#photoPreview").hidden = false;
     $("#photoRemove").hidden = false;
@@ -607,7 +682,7 @@ function setupVerification() {
     clearSelectedPhoto();
   });
 
-  $("#completeVerifyButton").addEventListener("click", () => {
+  $("#completeVerifyButton").addEventListener("click", async () => {
     if (state.verifiedPlaces.includes(activePlaceId)) {
       showToast("이미 인증한 장소예요.", true);
       return;
@@ -617,6 +692,11 @@ function setupVerification() {
       return;
     }
     const place = activePlace();
+    const photoSaved = await saveCapturedPhoto(place.cardId, pendingPhotoFile);
+    if (!photoSaved) {
+      showToast("사진을 기기에 저장하지 못했어요. 브라우저 저장 공간을 확인해 주세요.", true);
+      return;
+    }
     state.verifiedPlaces.push(place.id);
     state.lastVerifiedPlace = place.id;
     state.coins += 35;
@@ -646,11 +726,12 @@ function setupDialogs() {
 }
 
 function setupReset() {
-  $("#resetButton").addEventListener("click", () => {
+  $("#resetButton").addEventListener("click", async () => {
     const accepted = window.confirm("수집한 카드와 코인, 인증 기록을 처음 상태로 되돌릴까요?");
     if (!accepted) return;
     state = structuredClone(defaultState);
     saveState();
+    await clearCapturedPhotos();
     activePlaceId = places[0].id;
     methodVerified = false;
     clearSelectedPhoto();
@@ -660,12 +741,13 @@ function setupReset() {
   });
 }
 
-function init() {
+async function init() {
   setupFilters();
   setupNavigation();
   setupVerification();
   setupDialogs();
   setupReset();
+  await loadCapturedPhotos();
   updateAll();
 }
 
